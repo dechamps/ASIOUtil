@@ -3,7 +3,6 @@
 #include <dechamps_cpputil/endian.h>
 #include <dechamps_cpputil/string.h>
 
-#include <cassert>
 #include <cstring>
 #include <utility>
 
@@ -189,32 +188,6 @@ namespace dechamps_ASIOUtil {
 			<< DescribeASIOTimeInfo(asioTime.timeInfo) << "), time code ("
 			<< DescribeASIOTimeCode(asioTime.timeCode) << ")";
 		return result.str();
-	}
-
-	void CopyToInterleavedBuffer(const std::vector<ASIOBufferInfo>& bufferInfos, bool isInput, const size_t sampleSize, const size_t bufferSizeInSamples, const long doubleBufferIndex, void* const interleavedBuffer, const long interleavedBufferChannelCount) {
-		for (const auto& bufferInfo : bufferInfos) {
-			if (!!bufferInfo.isInput != isInput) continue;
-
-			const auto channelNum = bufferInfo.channelNum;
-			assert(channelNum < interleavedBufferChannelCount);
-			const auto buffer = static_cast<uint8_t*>(bufferInfo.buffers[doubleBufferIndex]);
-
-			for (size_t sampleCount = 0; sampleCount < bufferSizeInSamples; ++sampleCount)
-				memcpy(static_cast<uint8_t*>(interleavedBuffer) + (interleavedBufferChannelCount * sampleCount + channelNum) * sampleSize, buffer + sampleCount * sampleSize, sampleSize);
-		}
-	}
-
-	void CopyFromInterleavedBuffer(const std::vector<ASIOBufferInfo>& bufferInfos, bool isInput, const size_t sampleSize, const size_t bufferSizeInSamples, const long doubleBufferIndex, const void* const interleavedBuffer, const long interleavedBufferChannelCount) {
-		for (const auto& bufferInfo : bufferInfos) {
-			if (!!bufferInfo.isInput != isInput) continue;
-
-			const auto channelNum = bufferInfo.channelNum;
-			assert(channelNum < interleavedBufferChannelCount);
-			const auto buffer = static_cast<uint8_t*>(bufferInfo.buffers[doubleBufferIndex]);
-
-			for (size_t sampleCount = 0; sampleCount < bufferSizeInSamples; ++sampleCount)
-				memcpy(buffer + sampleCount * sampleSize, static_cast<const uint8_t*>(interleavedBuffer) + (interleavedBufferChannelCount * sampleCount + channelNum) * sampleSize, sampleSize);
-		}
 	}
 
 }

@@ -11,7 +11,6 @@
 #include <cstdint>
 #include <string>
 #include <optional>
-#include <vector>
 
 namespace dechamps_ASIOUtil {
 	template <typename ASIOInt64> int64_t ASIOToInt64(ASIOInt64);
@@ -31,8 +30,5 @@ namespace dechamps_ASIOUtil {
 	std::string DescribeASIOTimeInfo(const AsioTimeInfo& asioTimeInfo);
 	std::string DescribeASIOTimeCode(const ASIOTimeCode& asioTimeCode);
 	std::string DescribeASIOTime(const ASIOTime& asioTime);
-
-	void CopyToInterleavedBuffer(const std::vector<ASIOBufferInfo>& bufferInfos, bool isInput, size_t sampleSize, size_t bufferSizeInSamples, long doubleBufferIndex, void* interleavedBuffer, long interleavedBufferChannelCount);
-	void CopyFromInterleavedBuffer(const std::vector<ASIOBufferInfo>& bufferInfos, bool isInput, size_t sampleSize, size_t bufferSizeInSamples, long doubleBufferIndex, const void* interleavedBuffer, long interleavedBufferChannelCount);
 
 }
