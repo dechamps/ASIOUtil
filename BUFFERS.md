@@ -379,6 +379,10 @@ If the application supports `ASIOOutputReady()`:
 13. Driver waits for incoming data to arrive, stores it in buffer 0.
 14. Steady-state: go to step 9.
 
+---
+
+*ASIO is a trademark and software of Steinberg Media Technologies GmbH*
+
 [ASIO SDK]: https://www.steinberg.net/en/company/developers.html
 [DMA]: https://en.wikipedia.org/wiki/Direct_memory_access
 [Robustness principle]: https://en.wikipedia.org/wiki/Robustness_principle
