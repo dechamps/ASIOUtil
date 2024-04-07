@@ -7,7 +7,7 @@ include(FetchContent)
 set(FETCHCONTENT_QUIET FALSE)
 FetchContent_Declare(asiosdk
 	URL "https://download.steinberg.net/sdk_downloads/asiosdk_2.3.3_2019-06-14.zip"
-	URL_HASH SHA1=33c44f0c919a7218413ea81e06a66bb8b47be292
+	URL_HASH SHA1=4d0097725bcf1015c91fb84f89e1a888141bd131
 	USES_TERMINAL_DOWNLOAD TRUE  # https://gitlab.kitware.com/cmake/cmake/issues/18238#note_440475
 )
 FetchContent_GetProperties(asiosdk)
