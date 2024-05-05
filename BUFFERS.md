@@ -309,6 +309,37 @@ steady-state, with one additional buffer in the output queue at all times. This
 seems to be the scenario described in the example in section 6 of the ASIO SDK
 documentation.
 
+### Special case: input-only mode
+
+There is additional ambiguity in the half-duplex pure recording mode where no
+output channels are used (i.e. all buffers passed to `ASIOCreateBuffers()` are
+input buffers). In that case, there are two possible approaches:
+
+1. The driver should call `bufferSwitch(0)` immediately on `ASIOStart()` with
+   silence to be consistent with full-duplex operation; or
+2. The driver should start recording into buffer 0 on `ASIOStart()` and wait for
+   buffer 0 to be filled with real samples before making the first call to
+   `bufferSwitch(0)`.
+
+It seems unlikely that an host application would badly misbehave if the
+application disagrees with the driver on this; indeed, the sequence of calls
+doesn't change - only the timing does, and calls can be arbitrarily delayed
+regardless.
+
+If a driver implements (1) but the application expects (2), the application will
+incorrectly report an initial period of silence in the recording.
+
+If a driver implements (2) but the application expects (1), the application will
+incorrectly drop the beginning of the recording. However, this risk is always
+present regardless: indeed, ASIO drivers do not make any guarantees as to when
+streaming will actually start after `ASIOStart()` is called, so it is impossible
+for applications to precisely time the start of recording anyway.
+
+Given the above, it would seem to make sense for drivers to implement approach
+(2), i.e. start recording on `ASIOStart()` and only make the first
+`bufferSwitch(0)` call once the first buffer has been filled with recorded
+samples.
+
 ## Summary of recommendations
 
 In the presence of such ambiguity around buffer validity, the best option for
@@ -328,8 +359,8 @@ application developers and driver developers is to apply the
   - In any case, applications should *always* call `ASIOOutputReady()` when
     they have stopped using an output buffer.
 
-An example sequence of calls could look as follows. If the application does not
-support `ASIOOutputReady()`:
+An example sequence of calls could look as follows. If output channels are used
+and the application does not support `ASIOOutputReady()`:
 
 1. Application fills output buffer 1.
    - One could argue the application could wait right up until step 6 before
@@ -354,7 +385,7 @@ support `ASIOOutputReady()`:
 19. Driver sends output buffer 0 to the hardware.
 20. Steady-state: go to step 12.
 
-If the application supports `ASIOOutputReady()`:
+If output channels are used and the application supports `ASIOOutputReady()`:
 
 1. Application advertises support for `ASIOOutputReady()` by calling it.
 2. Application fills output buffer 1.
@@ -378,6 +409,18 @@ If the application supports `ASIOOutputReady()`:
       receiving this call the driver sends output buffer 1 to the hardware.
 13. Driver waits for incoming data to arrive, stores it in buffer 0.
 14. Steady-state: go to step 9.
+
+If only input channels are used (half-duplex pure recording mode):
+
+1. Application calls `ASIOStart()`.
+2. Driver starts hardware recording.
+3. Driver waits for incoming data to arrive, stores it in buffer 0.
+4. Driver calls `bufferSwitch(0)`.
+5. Application returns from `bufferSwitch(0)`.
+6. Driver waits for incoming data to arrive, stores it in buffer 1.
+7. Driver calls `bufferSwitch(1)`.
+8. Application returns from `bufferSwitch(1)`.
+9. Steady-state: go to step 3.
 
 ---
 
