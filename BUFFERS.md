@@ -397,18 +397,23 @@ If output channels are used and the application supports `ASIOOutputReady()`:
      the driver does that, for better consistency with steady-state operation.
      However, the application might disagree, leading the driver to wait
      forever.
-7. Driver starts hardware playback and recording.
-8. Driver calls `bufferSwitch(0)`.
-9. Application returns from `bufferSwitch(0)`.
+7. Driver calls `bufferSwitch(0)`.
+8. Application returns from `bufferSwitch(0)`.
    - Before or after this step, the application calls `ASIOOutputReady()`. Upon
      receiving this call the driver sends output buffer 0 to the hardware.
+9. Driver starts hardware playback and recording.
 10. Driver waits for incoming data to arrive, stores it in buffer 1.
 11. Driver calls `bufferSwitch(1)`.
 12. Application returns from `bufferSwitch(1)`.
     - Before or after this step, the application calls `ASIOOutputReady()`. Upon
       receiving this call the driver sends output buffer 1 to the hardware.
 13. Driver waits for incoming data to arrive, stores it in buffer 0.
-14. Steady-state: go to step 8.
+14. Driver calls `bufferSwitch(0)`.
+15. Application returns from `bufferSwitch(0)`.
+    - Before or after this step, the application calls `ASIOOutputReady()`. Upon
+      receiving this call the driver sends output buffer 0 to the hardware.
+16. Driver waits for incoming data to arrive, stores it in buffer 1.
+17. Steady-state: go to step 11.
 
 If only input channels are used (half-duplex pure recording mode):
 
