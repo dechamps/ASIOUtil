@@ -408,7 +408,7 @@ If output channels are used and the application supports `ASIOOutputReady()`:
     - Before or after this step, the application calls `ASIOOutputReady()`. Upon
       receiving this call the driver sends output buffer 1 to the hardware.
 13. Driver waits for incoming data to arrive, stores it in buffer 0.
-14. Steady-state: go to step 9.
+14. Steady-state: go to step 8.
 
 If only input channels are used (half-duplex pure recording mode):
 
