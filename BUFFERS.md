@@ -264,7 +264,10 @@ to the one that was passed to the `bufferSwitch` call that just happened. This
 could mislead the driver into thinking that the application has stopped using
 the new output buffer, resulting in race conditions. For this reason it might
 be safer to make the driver block until the application has called
-`ASIOOutputReady()` before making the next call to `bufferSwitch`.
+`ASIOOutputReady()` before making the next call to `bufferSwitch`. If the driver
+does block, it is important to make sure it unblocks on a call to `ASIOStop()`
+as some applications do not call `ASIOOutputReady()` for the last `bufferSwitch`
+while stopping ([example][flexasio235]).
 
 ## `ASIOStart()` and "priming"
 
@@ -352,7 +355,8 @@ application developers and driver developers is to apply the
   - If `ASIOOutputReady()` is called, the driver can assume the application is
     not using the output buffer anymore, but be careful about such calls racing
     against `bufferSwitch`. You might want to wait for `ASIOOutputReady()` to be
-    called before making the next `bufferSwitch` call.
+    called before making the next `bufferSwitch` call. If you do, make sure to
+    unblock on a call to `ASIOStop()`.
 - Paranoid host application developers should assume that buffer 0 will cease to
   be valid as soon as they return from `bufferSwitch(0)` (same for the other
   buffer).
@@ -436,3 +440,4 @@ If only input channels are used (half-duplex pure recording mode):
 [Robustness principle]: https://en.wikipedia.org/wiki/Robustness_principle
 [undefined behaviour]: https://en.wikipedia.org/wiki/Undefined_behavior
 [benignrace]: https://software.intel.com/en-us/blogs/2013/01/06/benign-data-races-what-could-possibly-go-wrong
+[flexasio235]: https://github.com/dechamps/FlexASIO/issues/235
